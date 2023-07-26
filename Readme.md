@@ -1,3 +1,30 @@
+# PhoneBook :  nodeJs & express  , and render for deploymnet
+
+
+
+## Live Demo For Frontend Part : <a href="https://phonebook-complete.onrender.com/">Live Demo</a> 
+## To see Data Submited by You  :  <a href="https://phonebook-complete.onrender.com/api/persons">Click Here</a> 
+
+### Note : Sometime request and response take time in render .
+
+![Alt text](image-2.png)
+![Alt text](image-3.png)
+
+
+## Nodemon --> nodemon is a tool that helps develop Node.js based applications by automatically restarting
+
+## Express --> Express.js is a web framework for Node.js that provides a minimal and flexible way to create web and mobile applications, APIs, and dynamic HTTP objects
+
+#### "dependencies": {
+####    "cors": "^2.8.5",
+####    "express": "^4.18.2",
+####    "morgan": "^1.10.0"
+####  },
+####  "devDependencies": {
+####    "nodemon": "^3.0.1"
+####  }
+
+
                 Step1  : npm run dev
                 step 2 : npm install cors
 
