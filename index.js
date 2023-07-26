@@ -21,11 +21,6 @@ const requestLogger = (request, response, next) => {
   next();
 };
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
-
-
 
 
 // 3.8*: Phonebook backend step8
@@ -137,7 +132,6 @@ app.post("/api/persons", (request, response) => {
   response.json(newPerson);
 });
 
-app.use(unknownEndpoint)
 
 const PORT = process.env.PORT || 3003;
 
