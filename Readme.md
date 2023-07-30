@@ -62,3 +62,10 @@
 ### To make express show static content, the page index.html and the JavaScript, etc., it fetches, we need a built-in middleware from express called static.
 
                     app.use(express.static('build'))
+
+
+                    npm install mongoose
+
+## setup mongo.js file 
+
+# Connecting the backend to a database
