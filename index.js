@@ -5,16 +5,14 @@ const express = require("express");
 const app = express();
 const cors = require('cors');
 const morgan = require('morgan');
+
+// Importing the module
 const Person = require('./models/person');
 
 app.use(cors());
 app.use(express.static('build'));
-app.use(express.json());
+app.use(express.json()); // Add this line to parse JSON data
 
-// Middleware for logging incoming requests with body data
-morgan.token('body', req => {
-  return JSON.stringify(req.body);
-});
 const requestLogger = (request, response, next) => {
   console.log("Method:", request.method);
   console.log("Path:  ", request.path);
@@ -22,96 +20,79 @@ const requestLogger = (request, response, next) => {
   console.log("---");
   next();
 };
+
+// 3.8*: Phonebook backend step8
+morgan.token('body', req => {
+  return JSON.stringify(req.body)
+});
+
 app.use(requestLogger);
 
-// Route to fetch all persons
-app.get("/api/persons", (request, response, next) => {
-  Person.find({})
-    .then((persons) => {
-      response.json(persons);
-    })
-    .catch((error) => next(error));
+// 3.1: Phonebook backend step1
+// fetching all persons
+app.get("/api/persons", (request, response) => {
+  Person.find({}).then((persons) => {
+    response.json(persons);
+  });
 });
 
-// Route to fetch a specific person by ID
-app.get('/api/persons/:id', (request, response, next) => {
+// Add the DELETE method
+app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id;
-  Person.findById(id)
-    .then(person => {
-      if (person) {
-        response.json(person);
-      } else {
-        response.status(404).end();
-      }
-    })
-    .catch(error => next(error));
-});
 
-// Route to delete a person by ID
-app.delete('/api/persons/:id', (request, response, next) => {
-  const id = request.params.id;
   Person.findByIdAndRemove(id)
     .then(() => {
       response.status(204).end();
     })
-    .catch((error) => next(error));
+    .catch((error) => {
+      console.log(error);
+      response.status(500).json({ error: 'Something went wrong' });
+    });
 });
 
-// Route to update a person's information by ID
-app.put('/api/persons/:id', (request, response, next) => {
+// Add the PUT method
+app.put('/api/persons/:id', (request, response) => {
   const id = request.params.id;
   const { name, number } = request.body;
-  const updatedPerson = { name, number };
+
+  const updatedPerson = {
+    name: name,
+    number: number,
+  };
 
   Person.findByIdAndUpdate(id, updatedPerson, { new: true })
     .then((result) => {
       response.json(result);
     })
-    .catch((error) => next(error));
-});
-
-// Route to create a new person
-app.post("/api/persons", (request, response) => {
-  const { name, number } = request.body;
-  if (!name || !number) {
-    return response.status(400).json({ error: 'content missing' });
-  }
-
-  Person.findOne({ name: name })
-    .then(existingPerson => {
-      if (existingPerson) {
-        return response.status(400).json({ error: "Name already exists in the phonebook" });
-      }
-
-      const person = new Person({
-        name: name,
-        number: number,
-        date: new Date(),
-      });
-
-      person.save().then((savedPerson) => {
-        response.json(savedPerson);
-      });
+    .catch((error) => {
+      console.log(error);
+      response.status(500).json({ error: 'Something went wrong' });
     });
 });
 
-// Middleware for handling unknown endpoints
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' });
-};
-app.use(unknownEndpoint);
-
-// Middleware for error handling
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
-
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' });
+app.post("/api/persons", (request, response) => {
+  console.log(request.body);
+  const { name, number } = request.body;
+  if (name === undefined || number === undefined) {
+    return response.status(400).json({ error: 'content missing' });
   }
 
-  next(error);
-};
-app.use(errorHandler);
+  Person.find({ name: name }).then((result) => {
+    if (result.length > 0) {
+      return response.status(400).json({ error: "Name already exists in the phonebook" });
+    }
+
+    const person = new Person({
+      name: name,
+      number: number,
+      date: new Date(),
+    });
+
+    person.save().then((savedPerson) => {
+      response.json(savedPerson);
+    });
+  });
+});
 
 const PORT = process.env.PORT || 3003;
 
